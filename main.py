@@ -121,7 +121,7 @@ def main():
 
 		uploadFile(
 			service=service
-			, metadata={"name": FILE_TO_UPLOAD, "parents":[folder_id]}
+			, metadata={"name": os.path.basename(FILE_TO_UPLOAD), "parents":[folder_id]}
 			, file_path=FILE_TO_UPLOAD
 			, mime_type=mimetypes.guess_type(FILE_TO_UPLOAD)[0]
 		)
