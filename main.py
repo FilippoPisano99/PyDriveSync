@@ -14,6 +14,7 @@ from googleapiclient.http import MediaFileUpload
 SCOPES = ["https://www.googleapis.com/auth/drive.metadata.readonly","https://www.googleapis.com/auth/drive.file"]
 CREDENTAILS_FILE = "credentials.json"
 TOKEN_FILE = "token.json"
+SHOW_PROGRESS = False
 
 MAX_FILES = 10
 UPLOAD_CHUNK_SIZE = 5 * (1024 * 1024) # 5MB
@@ -98,7 +99,7 @@ def uploadFile(service, metadata, file_path, mime_type):
 	response = None
 	while response is None:
 		status, response = request.next_chunk()
-		if status:
+		if SHOW_PROGRESS and status:
 			print (f"Uploaded {int(status.progress() * 100)}%" , end='\r')
 	file = response
 
