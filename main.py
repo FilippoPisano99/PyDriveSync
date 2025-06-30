@@ -1,4 +1,5 @@
 import os.path
+from datetime import datetime
 import sys
 import mimetypes
 
@@ -84,9 +85,11 @@ def searchSyncFiles(service, folder_id):
 	return items
 
 def uploadFile(service, metadata, file_path, mime_type):
-	print(f'Upload file {file_path} ...',end='')
+	print(datetime.now(), f'Upload file {file_path}')
 	media = MediaFileUpload(file_path, mimetype=mime_type)
+	print(datetime.now(), 'MediaFileUpload created')
 
+	print(datetime.now(), 'Uploading')
 	file = (
 		service.files()
 		.create(
@@ -96,6 +99,8 @@ def uploadFile(service, metadata, file_path, mime_type):
 		)
 		.execute()
 	)
+
+	print(datetime.now(), 'DONE')
 	print(f'OK' ,end='\n')
 	print(f'File ID: {file.get("id")}')
 
