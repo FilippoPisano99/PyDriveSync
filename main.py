@@ -86,19 +86,30 @@ def searchSyncFiles(service, folder_id):
 
 def uploadFile(service, metadata, file_path, mime_type):
 	print(datetime.now(), f'Upload file {file_path}')
-	media = MediaFileUpload(file_path, mimetype=mime_type)
+	media = MediaFileUpload(file_path, mimetype=mime_type, resumable=True, chunksize=1024 * 1024 )
 	print(datetime.now(), 'MediaFileUpload created')
 
 	print(datetime.now(), 'Uploading')
-	file = (
-		service.files()
-		.create(
-			body=metadata
-			, media_body=media
-			, fields="id"
-		)
-		.execute()
+	request = service.files().create(
+		body=metadata
+		, media_body=media
+		, fields="id"
 	)
+	response = None
+	while response is None:
+		status, response = request.next_chunk()
+		if status:
+			print (f"Uploaded {int(status.progress() * 100)}%" , end='\r')
+	file = response
+	# file = (
+	# 	service.files()
+	# 	.create(
+	# 		body=metadata
+	# 		, media_body=media
+	# 		, fields="id"
+	# 	)
+	# 	.execute()
+	# )
 
 	print(datetime.now(), 'DONE')
 	print(f'OK' ,end='\n')
