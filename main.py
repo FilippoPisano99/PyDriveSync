@@ -59,7 +59,7 @@ def getFolderID(service, folder_name):
 	items = results.get("files", [])
 
 	print(f'OK',end='\n')
-	print(f'FOLDER ID: {items[0]['id']}')
+	print(f"FOLDER ID: {items[0]['id']}")
 	return items[0]['id']
 
 def searchSyncFiles(service, folder_id):
