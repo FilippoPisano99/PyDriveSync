@@ -1,4 +1,5 @@
 import os.path
+import sys
 import mimetypes
 
 from google.auth.transport.requests import Request
@@ -12,9 +13,11 @@ from googleapiclient.http import MediaFileUpload
 SCOPES = ["https://www.googleapis.com/auth/drive.metadata.readonly","https://www.googleapis.com/auth/drive.file"]
 CREDENTAILS_FILE = "credentials.json"
 TOKEN_FILE = "token.json"
-FOLDER_NAME = 'NAS_BACKUP_DEV'
 
-FILE_TO_UPLOAD = 'file.png' 
+MAX_FILES = 10
+
+FOLDER_NAME = sys.argv[1]
+FILE_TO_UPLOAD = sys.argv[2]
 
 #====================================================================
 
@@ -66,7 +69,7 @@ def searchSyncFiles(service, folder_id):
 		.list(
 			pageSize=10
 			, q=f"'{folder_id}' in parents and trashed=false"
-			, fields="files(id, name, parents)"
+			, fields="files(id, name, createdTime, parents)"
 			, orderBy="createdTime"
 			)
 		.execute()
@@ -74,8 +77,10 @@ def searchSyncFiles(service, folder_id):
 	items = results.get("files", [])
 
 	print(f"Files ({len(items)}):")
+	if len(items) > 0:
+		print(f"{'NAME'.ljust(30,' ')}{'CREATED TIME'.ljust(30,' ')} ID")
 	for item in items:
-		print(f"{item['name']} ({item['id']})")
+		print(f"{item['name'].ljust(30,' ')}{item['createdTime'].ljust(30,' ')} ({item['id']})")
 	return items
 
 def uploadFile(service, metadata, file_path, mime_type):
@@ -103,6 +108,7 @@ def deleteFile(service, file_id):
 
 #====================================================================
 def main():
+	
 	try:
 		creds = loadGoogleCreds(SCOPES,CREDENTAILS_FILE,TOKEN_FILE)
 		service = build("drive", "v3", credentials=creds)
@@ -110,7 +116,7 @@ def main():
 		folder_id 	= getFolderID(service=service, folder_name=FOLDER_NAME)		
 		files		= searchSyncFiles(service=service, folder_id=folder_id)
 		
-		if len(files) > 0:
+		if len(files) >= MAX_FILES:
 			deleteFile(service=service, file_id=files[0]['id'])
 
 		uploadFile(
